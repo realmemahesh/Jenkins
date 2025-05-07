@@ -1,0 +1,55 @@
+pipeline{
+    agents any
+    parameters{
+        string(name: 'ENV', defaultValue: 'dev')
+    }
+    environment{
+        DOCKER_HUB="iammaheshn"
+        IMAGE_NAME="frontend"
+        IMAGE_TAG="${params.ENV}-${env.BUILD_ID}"
+    }
+    stages{
+        stage("code checkout"){
+            steps{
+                script{
+                    checkout scm
+                }
+            }
+        stage("Docker build"){
+            steps{
+                script{
+                    sh "docker build -t ${DOCKER_HUB}/${IMAGE_NAME}:${IMAGE_TAG} ."
+                }
+            }
+        }
+        stage("Docker push"){
+            steps{
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]){
+                    script{
+                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
+                        sh "docker push ${DOCKER_HUB}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    }
+                }
+            }
+        }
+        stage("Deploy to ${params.ENV}-k8s"){
+            steps{
+                script{
+                    sh "kubectl apply -f frontend/frontend-deployment.yaml"
+                }
+            }
+        }
+    }
+    post{
+        sucess{
+            script{
+                echo "Build and deployment successful"
+            }
+        }
+        failure{
+            script{
+                echo "Build or deployment failed"
+            }
+        }
+    }
+}
