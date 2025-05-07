@@ -21,25 +21,30 @@ spec:
   - name: docker-sock
     hostPath:
       path: /var/run/docker.sock
-"""}
+"""
             defaultContainer 'docker'
+        }
     }
+
     parameters {
         string(name: 'ENV', defaultValue: 'dev')
     }
+
     environment {
         DOCKER_HUB = "iammaheshn"
         IMAGE_NAME = "frontend"
         IMAGE_TAG = "${params.ENV}-${env.BUILD_ID}"
     }
+
     stages {
-        stage("code checkout") {
+        stage("Code checkout") {
             steps {
                 script {
                     git credentialsId: 'github_credentials', poll: false, url: 'https://github.com/realmemahesh/Jenkins.git'
                 }
             }
         }
+
         stage("Docker build") {
             steps {
                 script {
@@ -50,6 +55,7 @@ spec:
                 }
             }
         }
+
         stage("Docker push") {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
@@ -60,6 +66,7 @@ spec:
                 }
             }
         }
+
         stage("Deploy to Kubernetes") {
             steps {
                 script {
@@ -70,16 +77,13 @@ spec:
             }
         }
     }
+
     post {
         success {
-            script {
-                echo "Build and deployment successful"
-            }
+            echo "Build and deployment successful"
         }
         failure {
-            script {
-                echo "Build or deployment failed"
-            }
+            echo "Build or deployment failed"
         }
     }
 }
