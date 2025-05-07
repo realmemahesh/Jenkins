@@ -33,7 +33,7 @@ pipeline {
                 }
             }
         }
-        stage("Deploy to ${params.ENV}-k8s") {
+        stage("Deploy to k8s") {
             steps {
                 script {
                     sh "sed -i 's/latest/${IMAGE_TAG}/g' frontend/frontend-deployment.yaml"
