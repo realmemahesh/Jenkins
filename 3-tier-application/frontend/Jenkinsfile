@@ -1,6 +1,28 @@
 pipeline {
     agent {
-        label 'docker-agent'
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    jenkins: agent
+spec:
+  containers:
+  - name: docker
+    image: docker:20.10-cli
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+"""
+            defaultContainer 'docker'
     }
     parameters {
         string(name: 'ENV', defaultValue: 'dev')
@@ -13,14 +35,14 @@ pipeline {
     stages {
         stage("code checkout") {
             steps {
-                container('docker') {
+                script {
                     git credentialsId: 'github_credentials', poll: false, url: 'https://github.com/realmemahesh/Jenkins.git'
                 }
             }
         }
         stage("Docker build") {
             steps {
-                container('docker') {
+                script {
                     sh "pwd"
                     sh "ls -l"
                     sh "docker --version"
@@ -29,7 +51,7 @@ pipeline {
             }
         }
         stage("Docker push") {
-            container('docker') {
+            steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                     script {
                         sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
@@ -40,7 +62,7 @@ pipeline {
         }
         stage("Deploy to k8s") {
             steps {
-                container('docker') {
+                script {
                     sh "sed -i 's/latest/${IMAGE_TAG}/g' frontend/frontend-deployment.yaml"
                     sh "kubectl apply -f frontend/frontend-deployment.yaml"
                 }
