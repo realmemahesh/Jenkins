@@ -1,7 +1,6 @@
 pipeline {
     agent {
         label 'docker-agent'
-        defaultContainer 'docker'
     }
     parameters {
         string(name: 'ENV', defaultValue: 'dev')
@@ -14,14 +13,14 @@ pipeline {
     stages {
         stage("code checkout") {
             steps {
-                script {
+                container('docker') {
                     git credentialsId: 'github_credentials', poll: false, url: 'https://github.com/realmemahesh/Jenkins.git'
                 }
             }
         }
         stage("Docker build") {
             steps {
-                script {
+                container('docker') {
                     sh "pwd"
                     sh "ls -l"
                     sh "docker --version"
@@ -30,7 +29,7 @@ pipeline {
             }
         }
         stage("Docker push") {
-            steps {
+            container('docker') {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                     script {
                         sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
@@ -41,7 +40,7 @@ pipeline {
         }
         stage("Deploy to k8s") {
             steps {
-                script {
+                container('docker') {
                     sh "sed -i 's/latest/${IMAGE_TAG}/g' frontend/frontend-deployment.yaml"
                     sh "kubectl apply -f frontend/frontend-deployment.yaml"
                 }
