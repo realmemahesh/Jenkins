@@ -1,6 +1,7 @@
 pipeline {
     agent {
         label 'docker-agent'
+        defaultContainer 'docker'
     }
     parameters {
         string(name: 'ENV', defaultValue: 'dev')
