@@ -21,7 +21,7 @@ spec:
   - name: docker-sock
     hostPath:
       path: /var/run/docker.sock
-"""
+"""}
             defaultContainer 'docker'
     }
     parameters {
@@ -60,9 +60,10 @@ spec:
                 }
             }
         }
-        stage("Deploy to k8s") {
+        stage("Deploy to Kubernetes") {
             steps {
                 script {
+                    echo "Deploying to ${params.ENV}-k8s"
                     sh "sed -i 's/latest/${IMAGE_TAG}/g' frontend/frontend-deployment.yaml"
                     sh "kubectl apply -f frontend/frontend-deployment.yaml"
                 }
