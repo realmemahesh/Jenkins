@@ -12,13 +12,13 @@ pipeline{
         stage("code checkout"){
             steps{
                 script{
-                    checkout scm
+                    git credentialsId: 'github_credentials', poll: false, url: 'https://github.com/realmemahesh/Jenkins.git'
                 }
             }
         stage("Docker build"){
             steps{
                 script{
-                    sh "docker build -t ${DOCKER_HUB}/${IMAGE_NAME}:${IMAGE_TAG} ."
+                    sh "docker build -t ${DOCKER_HUB}/${IMAGE_NAME}:${IMAGE_TAG} ./frontend/."
                 }
             }
         }
@@ -35,6 +35,7 @@ pipeline{
         stage("Deploy to ${params.ENV}-k8s"){
             steps{
                 script{
+                    sh "sed -i 's/latest/${IMAGE_TAG}/g' frontend/frontend-deployment.yaml"
                     sh "kubectl apply -f frontend/frontend-deployment.yaml"
                 }
             }
