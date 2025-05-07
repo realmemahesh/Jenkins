@@ -21,6 +21,9 @@ pipeline {
         stage("Docker build") {
             steps {
                 script {
+                    sh "pwd"
+                    sh "ls -l"
+                    sh "docker --version"
                     sh "docker build -t ${DOCKER_HUB}/${IMAGE_NAME}:${IMAGE_TAG} ./frontend/."
                 }
             }
