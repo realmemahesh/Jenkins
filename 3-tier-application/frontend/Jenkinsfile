@@ -1,57 +1,57 @@
-pipeline{
-    agents any
-    parameters{
+pipeline {
+    agent any
+    parameters {
         string(name: 'ENV', defaultValue: 'dev')
     }
-    environment{
-        DOCKER_HUB="iammaheshn"
-        IMAGE_NAME="frontend"
-        IMAGE_TAG="${params.ENV}-${env.BUILD_ID}"
+    environment {
+        DOCKER_HUB = "iammaheshn"
+        IMAGE_NAME = "frontend"
+        IMAGE_TAG = "${params.ENV}-${env.BUILD_ID}"
     }
-    stages{
-        stage("code checkout"){
-            steps{
-                script{
+    stages {
+        stage("code checkout") {
+            steps {
+                script {
                     git credentialsId: 'github_credentials', poll: false, url: 'https://github.com/realmemahesh/Jenkins.git'
                 }
             }
-        stage("Docker build"){
-            steps{
-                script{
+        }
+        stage("Docker build") {
+            steps {
+                script {
                     sh "docker build -t ${DOCKER_HUB}/${IMAGE_NAME}:${IMAGE_TAG} ./frontend/."
                 }
             }
         }
-        stage("Docker push"){
-            steps{
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]){
-                    script{
+        stage("Docker push") {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    script {
                         sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
                         sh "docker push ${DOCKER_HUB}/${IMAGE_NAME}:${IMAGE_TAG}"
                     }
                 }
             }
         }
-        stage("Deploy to ${params.ENV}-k8s"){
-            steps{
-                script{
+        stage("Deploy to ${params.ENV}-k8s") {
+            steps {
+                script {
                     sh "sed -i 's/latest/${IMAGE_TAG}/g' frontend/frontend-deployment.yaml"
                     sh "kubectl apply -f frontend/frontend-deployment.yaml"
                 }
             }
         }
     }
-    post{
-        sucess{
-            script{
+    post {
+        success {
+            script {
                 echo "Build and deployment successful"
             }
         }
-        failure{
-            script{
+        failure {
+            script {
                 echo "Build or deployment failed"
             }
         }
     }
-  }
 }
