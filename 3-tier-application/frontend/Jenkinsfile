@@ -71,8 +71,8 @@ spec:
             steps {
                 script {
                     echo "Deploying to ${params.ENV}-k8s"
-                    sh "sed -i 's/latest/${IMAGE_TAG}/g' frontend/frontend-deployment.yaml"
-                    sh "kubectl apply -f frontend/frontend-deployment.yaml"
+                    sh "sed -i 's/latest/${IMAGE_TAG}/g' 3-tier-application/frontend/frontend-deployment.yaml"
+                    sh "kubectl apply -f 3-tier-application/frontend/frontend-deployment.yaml"
                 }
             }
         }
