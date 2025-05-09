@@ -47,7 +47,7 @@ spec:
                     sh "pwd"
                     sh "ls -l"
                     sh "docker --version"
-                    sh "docker build -t ${DOCKER_HUB}/${IMAGE_NAME}:${IMAGE_TAG} 3-tier-application/frontend/."
+                    sh "docker build -t ${DOCKER_HUB}/${IMAGE_NAME}:${IMAGE_TAG} 3-tier-application/applicationend/."
                 }
             }
         }
