@@ -30,7 +30,7 @@ spec:
     }
     environment{
         DOCKER_HUB = "iammaheshn"
-        IMAGE_NAME = "frontend"
+        IMAGE_NAME = "applicationend"
         IMAGE_TAG = "${params.ENV}-${env.BUILD_ID}"
     }
     stages{
