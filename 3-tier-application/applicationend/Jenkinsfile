@@ -1,5 +1,30 @@
 pipeline{
-    agent{}
+    agentagent {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    jenkins: agent
+spec:
+  containers:
+  - name: docker
+    image: docker:20.10-cli
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+"""
+            defaultContainer 'docker'
+        }
+    }
     parameters{
         string(name: 'ENV', defaultValue: 'dev')
     }
