@@ -1,0 +1,48 @@
+pipeline{
+    agent{}
+    parameters{
+        string(name: 'ENV', defaultValue: 'dev')
+    }
+    environment{
+        DOCKER_HUB = "iammaheshn"
+        IMAGE_NAME = "frontend"
+        IMAGE_TAG = "${params.ENV}-${env.BUILD_ID}"
+    }
+    stages{
+        stage("code checkout"){
+            steps{
+                script{
+                    git credentialsId: 'github_credentials', url: 'https://github.com/realmemahesh/Jenkins.git'
+                }
+            }
+        }
+        stage("Docker build"){
+            steps{
+                script{
+                    sh "pwd"
+                    sh "ls -l"
+                    sh "docker --version"
+                    sh "docker build -t ${DOCKER_HUB}/${IMAGE_NAME}:${IMAGE_TAG} 3-tier-application/frontend/."
+                }
+            }
+        }
+        stage("Docker push"){
+            steps{
+                script{
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
+                        sh "docker push ${DOCKER_HUB}/${IMAGE_NAME}:latest"
+                    }
+                }
+            }
+        }
+    }
+    post{
+        success {
+            echo "Build and deployment successful"
+        }
+        failure {
+            echo "Build failed"
+        }
+    }
+}
