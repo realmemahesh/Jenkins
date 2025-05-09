@@ -47,14 +47,14 @@ spec:
                     sh "pwd"
                     sh "ls -l"
                     sh "docker --version"
-                    sh "docker build -t ${DOCKER_HUB}/${IMAGE_NAME}:${IMAGE_TAG} 3-tier-application/applicationend/."
+                    sh "docker build -t ${DOCKER_HUB}/${IMAGE_NAME}:latest 3-tier-application/applicationend/."
                 }
             }
         }
         stage("Docker push"){
             steps{
                 script{
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
                         sh "docker push ${DOCKER_HUB}/${IMAGE_NAME}:latest"
                     }
