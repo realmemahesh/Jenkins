@@ -5,7 +5,7 @@ app = Flask(__name__)
 def index():
     return '''
     <h1>Frontend (Python Flask)</h1>
-    <a href="http://java-svc.app.svc.cluster.local:8080/">Go to Application Tier</a>
+    <a href="https://ingress.kubernetes/app">Go to Application Tier</a>
     '''
 
 if __name__ == "__main__":
