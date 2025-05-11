@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: java
-        image: iammaheshn/java-app:latest
+        image: iammaheshn/applicationend:latest
         ports:
         - containerPort: 8080
 ---

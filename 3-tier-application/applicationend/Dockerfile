@@ -1,9 +1,5 @@
-FROM maven:latest AS build
+FROM python:3.10
 WORKDIR /app
 COPY . .
-RUN mvn clean package -DskipTests
-
-FROM openjdk:11
-WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+RUN pip install flask
+CMD ["python", "main.py"]
