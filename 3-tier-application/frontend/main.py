@@ -5,7 +5,7 @@ app = Flask(__name__)
 def index():
     return '''
     <h1>Frontend (Python Flask)</h1>
-    <a href="https://ingress.kubernetes/app">Go to Application Tier</a>
+    <a href="https://ingress.kubernetes/app">Go to Application Tier-v2</a>
     '''
 
 if __name__ == "__main__":
